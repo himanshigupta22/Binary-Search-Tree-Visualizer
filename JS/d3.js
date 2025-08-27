@@ -6,11 +6,11 @@ export const plot = (treeData, currValue,isInserting) => {
   var nodes = d3.hierarchy(treeData);
   nodes = treemap(nodes);
   var svg = d3
-    .select("body")
+    .select(".vis-container")
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr("transform", `translate( ${150 +((window.innerWidth >= 760) ? 80 : 10)},${0})`),
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   addLink(g,nodes,currValue,isInserting);
   addNode(g,nodes, currValue,isInserting);
@@ -62,7 +62,7 @@ function addNode(g,nodes, currValue,isInserting) {
     });
 }
 
-function addLink(g,nodes,currValue,isInserting) {
+function addLink(g, nodes, currValue, isInserting) {
   var link = g
     .selectAll(".link")
     .data(nodes.descendants().slice(1))
@@ -72,74 +72,17 @@ function addLink(g,nodes,currValue,isInserting) {
       return "link" + (d.data.name == currValue ? " recent" : "");
     })
     .attr("d", function (d) {
-      let s;
-      if (isInserting==true && d.data.name == currValue) {
-        s = (
-          "M" +
-          d.parent.x +
-          "," +
-          d.parent.y +
-          "C" +
-          d.parent.x +
-          "," +
-          d.parent.y +
-          " " +
-          d.parent.x +
-          "," +
-          d.parent.y +
-          " " +
-          d.parent.x +
-          "," +
-          d.parent.y
-        );
+      if (isInserting == true && d.data.name == currValue) {
+        return "M" + d.parent.x + "," + d.parent.y + "L" + d.parent.x + "," + d.parent.y;
+      } else {
+        return "M" + d.parent.x + "," + d.parent.y + "L" + d.x + "," + d.y;
       }
-      else {
-        s = (
-          "M" +
-          d.parent.x +
-          "," +
-          d.parent.y +
-          "C" +
-          d.parent.x +
-          "," +
-          (d.y + d.parent.y) / 2 +
-          " " +
-          d.x +
-          "," +
-          (d.y + d.parent.y) / 2 +
-          " " +
-          d.x +
-          "," +
-          d.y
-        );
-      }
-      return s;
     });
-  addLinkTransition(link,currValue);
 
-}
-function addLinkTransition(link,currValue) {
-  link.transition()
+  link
+    .transition()
     .duration(1000)
     .attr("d", function (d) {
-      let s = (
-        "M" +
-        d.parent.x +
-        "," +
-        d.parent.y +
-        "C" +
-        d.parent.x +
-        "," +
-        (d.y + d.parent.y) / 2 +
-        " " +
-        d.x +
-        "," +
-        (d.y + d.parent.y) / 2 +
-        " " +
-        d.x +
-        "," +
-        d.y
-      );
-      return s;
+      return "M" + d.parent.x + "," + d.parent.y + "L" + d.x + "," + d.y;
     });
 }
